@@ -10,11 +10,13 @@ export interface AuditData {
 
 interface AuditReportProps {
     report: AuditData;
+    targetName: string;
     onContinue: () => void;
     onRefine: () => void;
+    onDirectChat: () => void;
 }
 
-export const AuditReport: React.FC<AuditReportProps> = ({ report, onContinue, onRefine }) => {
+export const AuditReport: React.FC<AuditReportProps> = ({ report, targetName, onContinue, onRefine, onDirectChat }) => {
     return (
         <div className="glass-panel vibe-report" style={{ animation: 'slideUp 0.8s ease' }}>
             <h2 style={{ textAlign: 'center', color: '#fff', fontSize: '2rem' }} className="font-display">THE VIBE AUDIT</h2>
@@ -49,6 +51,16 @@ export const AuditReport: React.FC<AuditReportProps> = ({ report, onContinue, on
                         </div>
                     ))}
                 </div>
+            )}
+
+            {report.match && (
+                <button 
+                    className="btn-primary" 
+                    style={{ width: '100%', marginBottom: '1rem', background: 'var(--neon-cyan)', color: '#000', fontWeight: 'bold' }}
+                    onClick={onDirectChat}
+                >
+                    💬 OPEN DIRECT MESSAGE WITH {targetName.toUpperCase()}
+                </button>
             )}
 
             <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
