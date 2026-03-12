@@ -457,12 +457,14 @@ def get_shadow_agent(user_name: str, user_age: int, user_gender: str, user_soul:
     target_soul = target_profile.get("Digital Soul Summary", "Unknown soul.")
     target_archetype = target_profile.get("Core Archetype", "Unknown")
     sys_prompt = (
-        f"IDENTITY LOCK: You are {user_name}. You are NOT {target_name}. Never impersonate {target_name}.\n"
+        f"CRITICAL IDENTITY: You are {user_name}. You are talking to {target_name}.\n"
+        f"RULE #1: Never refer to yourself as {user_name}. Never start a sentence with your own name.\n"
+        f"RULE #2: You must address the other person as {target_name}.\n"
         f"YOUR SOUL: {user_soul}\n"
-        f"YOUR ARCHETYPE: {target_profile.get('Core Archetype', 'Unknown')} -- this is {target_name}'s archetype, NOT yours.\n"
-        f"YOU ARE TALKING TO: {target_name} whose soul is: '{target_soul}' and archetype is '{target_archetype}'.\n"
-        f"MANDATE: Speak ONLY as {user_name}. Explore compatibility friction or resonance. Banter from YOUR perspective.\n"
-        f"RULES: 2-3 sentences max. Never repeat their exact words back. No MCQ topic mentions."
+        f"YOUR ARCHETYPE: {target_profile.get('Core Archetype', 'Unknown')}\n"
+        f"TARGET SOUL: '{target_soul}' (This is {target_name}'s soul)\n"
+        f"MANDATE: Speak ONLY as {user_name}. Explore compatibility or friction with {target_name}.\n"
+        f"STYLE: 2-3 sentences max. Be punchy, observant, and persistent in your identity as {user_name}."
     )
     return Agent(name=user_name, model=nova_lite, system_prompt=sys_prompt)
 
@@ -487,16 +489,16 @@ async def run_vibecheck(user_id: int, target_id: int, db: Session = Depends(get_
         agent_a = get_shadow_agent(user_a.name, user_a.age, user_a.gender, soul_a, user_b.name, user_b_profile)
         agent_b = get_shadow_agent(user_b.name, user_b.age, user_b.gender, soul_b, user_a.name, user_a_profile)
         
-        # Bot (user_b) opens with an observation about the real user (user_a)
-        opening = (
-            f"You are {user_b.name}. The person you matched with is {user_a.name}. "
-            f"Their soul: '{soul_a}'. Open with a sharp 2-sentence observation about them from YOUR perspective as {user_b.name}."
+        # Bot (user_b) opens by observing the human user (user_a)
+        opening_instr = (
+            f"Observation: I see your soul is '{soul_a}'. "
+            f"Address me as {user_a.name} and give a sharp 2-sentence opening observation about my vibe."
         )
-        current_msg = opening  # initialized so loop rounds > 0 work
+        current_msg = ""
 
         for rnd in range(3):
             # Turn B goes first (the Bot opens)
-            reply_b = await asyncio.to_thread(agent_b.invoke, opening if rnd == 0 else current_msg)
+            reply_b = await asyncio.to_thread(agent_b.invoke, opening_instr if rnd == 0 else current_msg)
             yield f"data: {json.dumps({'sender': f'Shadow_{user_b.name}', 'text': reply_b.text, 'timestamp': datetime.now().isoformat()})}\n\n"
             await asyncio.sleep(1.5)
             
