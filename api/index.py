@@ -4,7 +4,6 @@ import logging
 import os
 import random
 import time
-import sys
 from datetime import datetime
 from typing import Dict, List, Optional
 
@@ -16,10 +15,13 @@ from sqlalchemy import create_engine, Column, Integer, String, Boolean, Text, fu
 from sqlalchemy.orm import sessionmaker, Session, declarative_base
 from dotenv import load_dotenv
 
-# Standard Imports
+# Pathing for Vercel
+import sys
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-from strands import Agent
-from strands.models import BedrockModel
+
+# Standard Imports
+from vibestrands import Agent
+from vibestrands.models import BedrockModel
 
 # AWS Configuration from .env
 load_dotenv()
