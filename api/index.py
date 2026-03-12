@@ -16,6 +16,7 @@ from sqlalchemy.orm import sessionmaker, Session, declarative_base
 from dotenv import load_dotenv
 
 # Standard Imports
+sys.path.append(os.path.join(os.path.dirname(__file__)))
 from strands import Agent
 from strands.models import BedrockModel
 
