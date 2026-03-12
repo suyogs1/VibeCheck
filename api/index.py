@@ -4,6 +4,7 @@ import logging
 import os
 import random
 import time
+import sys
 from datetime import datetime
 from typing import Dict, List, Optional
 
@@ -16,7 +17,7 @@ from sqlalchemy.orm import sessionmaker, Session, declarative_base
 from dotenv import load_dotenv
 
 # Standard Imports
-sys.path.append(os.path.join(os.path.dirname(__file__)))
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from strands import Agent
 from strands.models import BedrockModel
 
