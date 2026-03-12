@@ -4,4 +4,5 @@ sqlalchemy
 pydantic
 python-dotenv
 boto3
-strands==0.1.18
+strands-agents>=0.1.0
+strands-agents-tools>=0.1.0
