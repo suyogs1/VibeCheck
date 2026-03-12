@@ -15,22 +15,15 @@ from sqlalchemy import create_engine, Column, Integer, String, Boolean, Text, fu
 from sqlalchemy.orm import sessionmaker, Session, declarative_base
 from dotenv import load_dotenv
 
-import sys
-sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "src"))
+# Standard Imports
 from strands import Agent
 from strands.models import BedrockModel
 
 # AWS Configuration from .env
 load_dotenv()
 
-# -------------------------------------------------------------
-# 1. DATABASE CONFIGURATION
-# -------------------------------------------------------------
-db_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data"))
-os.makedirs(db_dir, exist_ok=True)
-db_path = os.path.join(db_dir, "vibecheck.db")
-
-DATABASE_URL = f"sqlite:///{db_path}"
+# DATABASE CONFIGURATION (Vercel /tmp for SQLite)
+DATABASE_URL = "sqlite:////tmp/vibecheck.db"
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
