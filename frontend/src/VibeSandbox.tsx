@@ -16,10 +16,14 @@ type ReportEvent = {
 type Candidate = { id: number; name: string; age: number; gender: string; profile: any };
 
 export const VibeSandbox: React.FC = () => {
-    const [appState, setAppState] = useState<'auth' | 'onboarding' | 'swiping' | 'sandbox'>('auth');
+    const [appState, setAppState] = useState<'auth' | 'onboarding' | 'swiping' | 'sandbox' | 'chat'>('auth');
     const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
 
     const [userId, setUserId] = useState<number | null>(null);
+
+    // Direct Message Concept
+    const [dmMessages, setDmMessages] = useState<{sender: string, text: string}[]>([]);
+    const [dmInput, setDmInput] = useState('');
 
     // Auth Form
     const [email, setEmail] = useState('');
@@ -234,6 +238,20 @@ export const VibeSandbox: React.FC = () => {
         }
     };
 
+    const handleSendDM = () => {
+        if (!dmInput.trim() || !candidates[candidateIdx]) return;
+        setDmMessages(prev => [...prev, { sender: 'You', text: dmInput }]);
+        setDmInput('');
+        // Concept: Mock a reply from the match after 1 second
+        setTimeout(() => {
+            const matchName = candidates[candidateIdx].name;
+            setDmMessages(prev => [...prev, { 
+                sender: matchName, 
+                text: `Agentic audit confirmed our vibes. Let's make this interesting! 😉` 
+            }]);
+        }, 1200);
+    };
+
     const handleRefine = () => {
         setAnswers({});
         loadQuestions();
@@ -361,6 +379,47 @@ export const VibeSandbox: React.FC = () => {
         );
     }
 
+    if (appState === 'chat') {
+        const target = candidates[candidateIdx];
+        return (
+            <div className="sandbox-grid" style={{ maxWidth: '500px', margin: '5vh auto' }}>
+                <div className="glass-panel" style={{ height: '70vh', display: 'flex', flexDirection: 'column' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '1rem', borderBottom: '1px solid #333', marginBottom: '1rem' }}>
+                        <h3 style={{ color: 'var(--neon-cyan)', margin: 0 }}>CHAT WITH {target?.name.toUpperCase()}</h3>
+                        <button onClick={() => setAppState('swiping')} style={{ background: 'none', border: 'none', color: '#888', cursor: 'pointer' }}>Close</button>
+                    </div>
+                    
+                    <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.8rem', paddingRight: '10px' }}>
+                        {dmMessages.map((msg, i) => (
+                            <div key={i} style={{ 
+                                alignSelf: msg.sender === 'You' ? 'flex-end' : (msg.sender === 'System' ? 'center' : 'flex-start'),
+                                background: msg.sender === 'You' ? '#007AFF' : (msg.sender === 'System' ? 'rgba(255,255,255,0.05)' : '#262626'),
+                                padding: '0.6rem 1rem',
+                                borderRadius: '12px',
+                                maxWidth: '80%',
+                                fontSize: msg.sender === 'System' ? '0.8rem' : '1rem',
+                                color: msg.sender === 'System' ? '#888' : '#fff'
+                            }}>
+                                <p style={{ margin: 0 }}>{msg.text}</p>
+                            </div>
+                        ))}
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
+                        <input 
+                            placeholder="Send a message..." 
+                            value={dmInput} 
+                            onChange={e => setDmInput(e.target.value)}
+                            onKeyDown={e => e.key === 'Enter' && handleSendDM()}
+                            style={{ flex: 1, padding: '0.8rem', borderRadius: '8px', background: 'rgba(0,0,0,0.5)', border: '1px solid #444', color: '#fff' }} 
+                        />
+                        <button className="btn-primary" style={{ padding: '0 1.5rem' }} onClick={handleSendDM}>SEND</button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="sandbox-grid" style={{ maxWidth: '900px', margin: '0 auto', gap: '3rem' }}>
             <ChatWindow events={events} isRunning={isRunning} initiatorName={name} />
@@ -372,11 +431,23 @@ export const VibeSandbox: React.FC = () => {
             )}
 
             {report && (
-                <AuditReport report={report} onContinue={() => {
-                    setCandidateIdx(candidateIdx + 1);
-                    setAppState('swiping');
-                }} onRefine={handleRefine} />
+                <AuditReport 
+                    report={report} 
+                    targetName={candidates[candidateIdx]?.name || 'Target'}
+                    onContinue={() => {
+                        setCandidateIdx(candidateIdx + 1);
+                        setAppState('swiping');
+                    }} 
+                    onRefine={handleRefine} 
+                    onDirectChat={() => {
+                        setDmMessages([{ 
+                            sender: 'System', 
+                            text: `Connected to ${candidates[candidateIdx]?.name}'s Direct Line.` 
+                        }]);
+                        setAppState('chat');
+                    }}
+                />
             )}
         </div>
     );
-}
+};
