@@ -4,4 +4,4 @@ sqlalchemy
 pydantic
 python-dotenv
 boto3
-strands
+strands==0.1.18
